@@ -44,9 +44,7 @@
 <body>
     <input type="file" id="fileInput" accept=".json">
     <button type="button" onclick="leggi()">Carica persone.json</button>
-
     <h1>Elenco Persone</h1>
-
     <table>
         <thead>
             <tr>
@@ -59,23 +57,24 @@
         </thead>
         <tbody id="tabella"></tbody>
     </table>
-
+     <button onclick="location.href='index_terzo.html'">Ritorno pagina iniziale</button>
 <script>
 var contenuto_tabella = [];
 
 function leggi() {
     const file = document.getElementById('fileInput').files[0];
-    const fileURL = URL.createObjectURL(file);
+    const fileURL = URL.createObjectURL(file); // cercato
 
     const req = new XMLHttpRequest();
     req.open("GET", fileURL, true);
     req.send();
 
     req.onload = function () {
-        const json = JSON.parse(req.responseText);
-        contenuto_tabella = json;
-        popola();
+            const json = JSON.parse(req.responseText);
+            contenuto_tabella = json;
+            popola();       
     }
+
 }
 
 function popola() {
@@ -85,7 +84,6 @@ function popola() {
     for (var i = 0; i < contenuto_tabella.length; i++) {
         var persona = contenuto_tabella[i];
         var row = tabella.insertRow();
-
         row.insertCell(0).textContent = persona.nome;
         row.insertCell(1).textContent = persona.cognome;
         row.insertCell(2).textContent = persona.indirizzo;
@@ -94,6 +92,5 @@ function popola() {
     }
 }
 </script>
-
 </body>
 </html>
