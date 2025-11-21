@@ -1,96 +1,157 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
+    <meta charset="UTF-8">
+    <title>Lettura JSON / XML</title>
     <style>
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
-            margin: 40px;
-            text-align: center;
+            font-family: "Trebuchet MS", sans-serif; /* diverso ma simile */
+            background-color: #fafafa;                /* più chiaro */
+            margin: 30px;
         }
 
-        h1 {
-            color: #222;
-            margin-bottom: 20px;
-        }
-
-        button {
-            background-color: #0078d7;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
-            border-radius: 5px;
+        h2 {
+            color: #5a5a9f; /* viola-blu invece del solito blu */
         }
 
         table {
-            margin: 20px auto;
+            width: 100%;
             border-collapse: collapse;
-            width: 80%;
+            margin-top: 20px;
             background-color: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
         }
 
         th, td {
+            padding: 8px;
             border: 1px solid #ddd;
-            padding: 10px;
+        }
+
+        th {
+            background-color: #5a5a9f; /* stesso colore di H2 */
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f0f0ff; /* azzurrino leggero */
+        }
+
+        #output {
+            margin-top: 20px;
         }
     </style>
-    <title>Elenco Persone</title>
 </head>
 <body>
-    <input type="file" id="fileInput" accept=".json">
-    <button type="button" onclick="leggi()">Carica persone.json</button>
-    <h1>Elenco Persone</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Cognome</th>
-                <th>Indirizzo</th>
-                <th>Città</th>
-                <th>CAP</th>
-            </tr>
-        </thead>
-        <tbody id="tabella"></tbody>
-    </table>
-     <button onclick="location.href='index_terzo.html'">Ritorno pagina iniziale</button>
+
+<h2>Carica un file JSON o XML</h2>
+<input type="file" id="fileInput" accept=".json,.xml">
+
+<div id="output"></div>
+
 <script>
-var contenuto_tabella = [];
 
-function leggi() {
-    const file = document.getElementById('fileInput').files[0];
-    const fileURL = URL.createObjectURL(file); // cercato
+document.getElementById("fileInput").addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
 
-    const req = new XMLHttpRequest();
-    req.open("GET", fileURL, true);
-    req.send();
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const content = e.target.result;
+        let data;
 
-    req.onload = function () {
-            const json = JSON.parse(req.responseText);
-            contenuto_tabella = json;
-            popola();       
+        try {
+            data = JSON.parse(content);
+            renderData(data);
+            return;
+        } catch (e) {}
+
+        try {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(content, "application/xml");
+
+            if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+                document.getElementById("output").innerHTML =
+                    "<p style='color:red;'>Formato XML non valido.</p>";
+                return;
+            }
+
+            data = xmlToJson(xmlDoc);
+            renderData(data);
+        } catch (e) {
+            document.getElementById("output").innerHTML =
+                "<p style='color:red;'>Errore nella lettura del file.</p>";
+        }
+    };
+
+    reader.readAsText(file);
+});
+
+
+
+function xmlToJson(xml) {
+    let obj = {};
+
+    if (xml.nodeType === 1) {
+        if (xml.attributes.length > 0) {
+            obj["@attributes"] = {};
+            for (let attr of xml.attributes) {
+                obj["@attributes"][attr.name] = attr.value;
+            }
+        }
+    } else if (xml.nodeType === 3) {
+        return xml.nodeValue.trim();
     }
 
+    if (xml.hasChildNodes()) {
+        for (let child of xml.childNodes) {
+            const nodeName = child.nodeName;
+            const value = xmlToJson(child);
+
+            if (value !== "") {
+                if (!obj[nodeName]) obj[nodeName] = value;
+                else {
+                    if (!Array.isArray(obj[nodeName])) obj[nodeName] = [obj[nodeName]];
+                    obj[nodeName].push(value);
+                }
+            }
+        }
+    }
+    return obj;
 }
 
-function popola() {
-    var tabella = document.getElementById("tabella");
-    tabella.innerHTML = "";
 
-    for (var i = 0; i < contenuto_tabella.length; i++) {
-        var persona = contenuto_tabella[i];
-        var row = tabella.insertRow();
-        row.insertCell(0).textContent = persona.nome;
-        row.insertCell(1).textContent = persona.cognome;
-        row.insertCell(2).textContent = persona.indirizzo;
-        row.insertCell(3).textContent = persona.citta;
-        row.insertCell(4).textContent = persona.cap;
+function renderData(data) {
+    const container = document.getElementById("output");
+
+    if (!Array.isArray(data)) {
+        const candidate = Object.values(data).find(v => Array.isArray(v));
+        data = candidate || [data];
     }
+
+    if (data.length === 0) {
+        container.innerHTML = "<p>Nessun dato da mostrare.</p>";
+        return;
+    }
+
+    const columns = [...new Set(data.flatMap(obj => Object.keys(obj)))];
+
+    let html = "<table><thead><tr>";
+    columns.forEach(c => html += `<th>${c}</th>`);
+    html += "</tr></thead><tbody>";
+
+    data.forEach(row => {
+        html += "<tr>";
+        columns.forEach(c => {
+            let val = row[c] ?? "";
+            if (typeof val === "object") val = JSON.stringify(val);
+            html += `<td>${val}</td>`;
+        });
+        html += "</tr>";
+    });
+
+    html += "</tbody></table>";
+    container.innerHTML = html;
 }
 </script>
+
 </body>
 </html>
