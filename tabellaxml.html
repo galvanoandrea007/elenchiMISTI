@@ -3,29 +3,25 @@
 <head>
     <style>
         body {
-            font-family: "Tahoma", sans-serif;
-            background-color: #eef1f5;
-            color: #222;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
             margin: 40px;
             text-align: center;
         }
 
         h1 {
-            color: #444;
+            color: #222;
             margin-bottom: 20px;
         }
 
         button {
-            background-color: #5a7bd7; 
+            background-color: #0078d7;
             color: white;
             border: none;
             padding: 8px 16px;
             cursor: pointer;
-            border-radius: 6px;
-        }
-
-        button:hover {
-            background-color: #496ac0;
+            border-radius: 5px;
         }
 
         table {
@@ -33,31 +29,22 @@
             border-collapse: collapse;
             width: 80%;
             background-color: white;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
             overflow: hidden;
         }
 
         th, td {
-            border: 1px solid #ccc; 
+            border: 1px solid #ddd;
             padding: 10px;
         }
-
-        th {
-            background-color: #5a7bd7;
-            color: white;
-        }
     </style>
-
     <title>Elenco Persone</title>
 </head>
 <body>
-
     <input type="file" id="fileInput" accept=".xml">
     <button type="button" onclick="leggi()">Carica persone.xml</button>
-
     <h1>Elenco Persone</h1>
-
     <table>
         <thead>
             <tr>
@@ -70,16 +57,13 @@
         </thead>
         <tbody id="tabella"></tbody>
     </table>
-
-    <button onclick="location.href='index_terzo.html'">Ritorno pagina iniziale</button>
-
+  <button onclick="location.href='index_terzo.html'">Ritorno pagina iniziale</button>
 <script>
-
 var contenuto_tabella = [];
 
 function leggi() {
     const file = document.getElementById('fileInput').files[0];
-    const fileURL = URL.createObjectURL(file); 
+    const fileURL = URL.createObjectURL(file); // cercato
 
     var req = new XMLHttpRequest();
     req.open("GET", fileURL, false);
@@ -87,12 +71,10 @@ function leggi() {
 
     var xml = req.responseXML;
     var persone = xml.getElementsByTagName("persona");
-
     contenuto_tabella = [];
 
     for (var i = 0; i < persone.length; i++) {
         var p = persone[i];
-
         contenuto_tabella.push({
             nome: p.getElementsByTagName("nome")[0].textContent,
             cognome: p.getElementsByTagName("cognome")[0].textContent,
@@ -112,7 +94,6 @@ function popola() {
     for (var i = 0; i < contenuto_tabella.length; i++) {
         var persona = contenuto_tabella[i];
         var row = tabella.insertRow();
-
         row.insertCell(0).textContent = persona.nome;
         row.insertCell(1).textContent = persona.cognome;
         row.insertCell(2).textContent = persona.indirizzo;
@@ -121,6 +102,5 @@ function popola() {
     }
 }
 </script>
-
 </body>
 </html>
