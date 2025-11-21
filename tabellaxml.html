@@ -3,20 +3,20 @@
 <head>
     <style>
         body {
-            font-family: "Tahoma", sans-serif; /* cambiato font */
-            background-color: #eef1f5;        /* più chiaro */
+            font-family: "Tahoma", sans-serif;
+            background-color: #eef1f5;
             color: #222;
             margin: 40px;
             text-align: center;
         }
 
         h1 {
-            color: #444; /* leggermente più scuro */
+            color: #444;
             margin-bottom: 20px;
         }
 
         button {
-            background-color: #5a7bd7; /* blu diverso */
+            background-color: #5a7bd7; 
             color: white;
             border: none;
             padding: 8px 16px;
@@ -25,7 +25,7 @@
         }
 
         button:hover {
-            background-color: #496ac0; /* hover diverso */
+            background-color: #496ac0;
         }
 
         table {
@@ -33,18 +33,18 @@
             border-collapse: collapse;
             width: 80%;
             background-color: white;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); /* ombra diversa */
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
             border-radius: 8px;
             overflow: hidden;
         }
 
         th, td {
-            border: 1px solid #ccc;  /* più scuro */
+            border: 1px solid #ccc; 
             padding: 10px;
         }
 
         th {
-            background-color: #5a7bd7; /* stesso blu del bottone */
+            background-color: #5a7bd7;
             color: white;
         }
     </style>
@@ -79,7 +79,7 @@ var contenuto_tabella = [];
 
 function leggi() {
     const file = document.getElementById('fileInput').files[0];
-    const fileURL = URL.createObjectURL(file); // identico
+    const fileURL = URL.createObjectURL(file); 
 
     var req = new XMLHttpRequest();
     req.open("GET", fileURL, false);
